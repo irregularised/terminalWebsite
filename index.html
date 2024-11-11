@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terminal Portfolio</title>
+    <style>
+        body {
+            background-color: black;
+            color: rgb(255, 255, 255);
+            font-family: monospace;
+            padding: 20px;
+            margin: 0;
+            min-height: 100vh;
+        }
+        #ascii-art {
+            white-space: pre;
+            font-size: 10px;
+            line-height: 1;
+            background: linear-gradient(90deg, #000000, #555555, #aaaaaa, #ffffff, #aaaaaa, #555555, #000000);
+            -webkit-background-clip: text;
+            color: transparent;
+            background-size: 900% 400%;
+            animation: colorShift 8s linear infinite, fadeEffect 10s ease-in-out infinite, wave 2s infinite ease-in-out;
+            display: inline-block;
+        }
+        @keyframes colorShift {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 100% 0%; }
+        }
+        @keyframes fadeEffect {
+            0% { opacity: 0; }
+            25% { opacity: 1; }
+            50% { opacity: 1; }
+            75% { opacity: 0; }
+            100% { opacity: 0; }
+        }
+        @keyframes wave {
+            0%, 100% { transform: translateY(0px); }
+            25% { transform: translateY(-5px); }
+            50% { transform: translateY(0px); }
+            75% { transform: translateY(5px); }
+        }
+        #output {
+            margin-top: 20px;
+        }
+        #input-line {
+            display: flex;
+            margin-top: 20px;
+        }
+        #input-line label {
+            margin-right: 8px;
+        }
+        #command-input {
+            background-color: black;
+            color: #ffffff;
+            border: none;
+            font-family: monospace;
+            font-size: 16px;
+            flex-grow: 1;
+        }
+        #command-input:focus {
+            outline: none;
+        }
+        @media (min-width: 640px) {
+            #ascii-art {
+                font-size: 12px;
+            }
+            #command-input {
+                width: 50%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="ascii-art"></div>
+    <div id="output"></div>
+    <form id="input-form">
+        <div id="input-line">
+            <label for="command-input">$</label>
+            <input type="text" id="command-input" aria-label="Enter command">
+        </div>
+    </form>
+
+    <script>
+        const grimReaperASCII = `
+    .o oOOOOOOOo                                            OOOo
+    Ob.OOOOOOOo  OOOo.      oOOo.                      .adOOOOOOO
+    OboO"""""""""""".OOo. .oOOOOOo.    OOOo.oOOOOOo.."""""""""'OO
+    OOP.oOOOOOOOOOOO "POOOOOOOOOOOo.   '"OOOOOOOOOP,OOOOOOOOOOOB'
+    'O'OOOO'     'OOOOo"OOOOOOOOOOO' .adOOOOOOOOO"oOOO'    'OOOOo
+    .OOOO'            'OOOOOOOOOOOOOOOOOOOOOOOOOO'            'OO
+    OOOOO                 '"OOOOOOOOOOOOOOOO"'                oOO
+   oOOOOOba.                .adOOOOOOOOOOba               .adOOOOo.
+  oOOOOOOOOOOOOOba.    .adOOOOOOOOOO@^OOOOOOOba.     .adOOOOOOOOOOOO
+ OOOOOOOOOOOOOOOOO.OOOOOOOOOOOOOO"'  '"OOOOOOOOOOOOO.OOOOOOOOOOOOOO
+ "OOOO"       "YOoOOOOMOIONODOO"'  .   '"OOROAOPOEOOOoOY"     "OOO"
+    Y           'OOOOOOOOOOOOOO: .oOOo. :OOOOOOOOOOO?'         ': '
+    :            .oO%OOOOOOOOOOo.OOOOOO.oOOOOOOOOOOOO?         .
+    .            oOOP"%OOOOOOOOoOOOOOOO?oOOOOO?OOOO"OOo
+                 '%o  OOOO"%OOOO%"%OOOOO"OOOOOO"OOO':
+                      '$"  'OOOO' 'O"Y ' 'OOOO'  o             .
+    .                  .     OP"          : o     .
+                              :
+                              .
+        `;
+
+        const commands = {
+            'about': 'I am currently a Digital Production and Design student, building my version of the digital world one step at a time. All coding projects are built from the ground up, from planning and designing all the way to solving real-life problems with code.',
+            'projects': 'Some of my previous projects include:\n- The terminal website you are currently on\n- A Text2ASCII tool\n- Python data analytics for a theme park',
+            'career': 'My career path:\n- I am currently a full-time student, studying T Levels Digital Production and Design Level 3\n- but I have had experience working within the testing sector for ECHO TECHNOLOGIES LTD. Sep 2023 - Dec 2023',
+            'skills': 'My skills include:\n- HTML\n- CSS\n- JavaScript/Typescript\n- Python\n- SQL & MySQL',
+            'contact': 'You can reach me at:\nEmail: cristian.sidor@icloud.com\nLinkedIn: https://www.linkedin.com/in/cristian-sidor-8aaabb2b2/\nGitHub: https://github.com/irregularised',
+            'help': 'Available commands: about, projects, career, skills, contact, clear',
+            'clear': 'Clearing the screen...',
+        };
+
+        const asciiArtElement = document.getElementById('ascii-art');
+        const outputElement = document.getElementById('output');
+        const inputForm = document.getElementById('input-form');
+        const inputElement = document.getElementById('command-input');
+
+        asciiArtElement.textContent = grimReaperASCII;
+
+        inputForm.addEventListener('submit', handleInputSubmit);
+
+        function handleInputSubmit(e) {
+            e.preventDefault();
+            const input = inputElement.value.trim().toLowerCase();
+            let result;
+
+            if (input === 'clear') {
+                outputElement.innerHTML = '';
+            } else {
+                result = commands[input] || `Command not found: ${input}`;
+                appendOutput(`$ ${input}`, true);
+                appendOutput(result, false);
+            }
+
+            inputElement.value = '';
+        }
+
+        function appendOutput(text, isCommand) {
+            const p = document.createElement('p');
+            outputElement.appendChild(p);
+
+            if (isCommand) {
+                p.textContent = text;
+            } else {
+                typeEffect(p, text, 25); // Adjust speed of typing effect
+            }
+        }
+
+        function typeEffect(element, text, delay = 25) {
+            let i = 0;
+            const interval = setInterval(() => {
+                element.textContent += text.charAt(i);
+                i++;
+                if (i === text.length) {
+                    clearInterval(interval);
+                }
+            }, delay);
+        }
+
+        //ascii animation
+        function animateASCII() {
+            const characters = ' .oO0@#$%&*+=-';
+            const asciiLines = grimReaperASCII.split('\n').map(line => line.split(''));
+
+           
+            asciiLines.forEach((line, rowIndex) => {
+                line.forEach((char, charIndex) => {
+                    if (char !== ' ') {
+                        const randomChar = characters[Math.floor(Math.random() * characters.length)];
+                        asciiLines[rowIndex][charIndex] = randomChar;
+                    }
+                });
+            });
+
+            asciiArtElement.textContent = asciiLines.map(line => line.join('')).join('\n');
+        }
+
+        //character animation
+        setInterval(animateASCII, 100);
+
+        //welcome message
+        window.addEventListener('load', () => {
+            const welcomeMessage = "Welcome to my terminal portfolio. Type 'help' for available commands.";
+            typeEffect(outputElement, welcomeMessage);
+            inputElement.focus();
+        });
+    </script>
+</body>
+</html>
